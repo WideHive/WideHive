@@ -7,6 +7,7 @@
 <p align="center">
   <img src="assets/architecture.svg" alt="WideHive 五阶段流水线" width="100%">
 </p>
+🌐 **项目主页**：<https://widehive.github.io>（安装指南、架构图与场景包列表）
 
 ## 为什么需要它
 
