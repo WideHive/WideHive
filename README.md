@@ -125,6 +125,14 @@ First scenario pack: [`scenarios/financial-filings.md`](scenarios/financial-fili
 — prospectus/annual-report extraction with currency discipline and
 IFRS-vs-adjusted separation.
 
+## Corpus & dashboard
+
+Finished runs become a **queryable corpus** (`build_corpus.py` → `corpus.jsonl`):
+follow-up questions get answered from what you already researched, citing run
+and fetch date — no re-fanning. And any `merged.json` can be turned into a
+**self-contained interactive dashboard** (`build_dashboard.py`) with search,
+sort, drill-down and charts.
+
 ## A real run (archived in `examples/smoke-test-3repos/`)
 
 Three GitHub repositories, one worker each, on a stock AutoClaw / OpenClaw agent:

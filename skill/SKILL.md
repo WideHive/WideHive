@@ -169,6 +169,38 @@ human-readable. The scheduled run flow, triggered by a cron job whose prompt is
 add jitter; respect robots and ToS. A watch that hammers its sources gets
 blocked — and burns trust for the skill, the user, and the wider ecosystem.
 
+## Corpus (knowledge base across runs)
+
+Every finished run is knowledge. Before answering any question about
+already-researched objects, query the corpus — do not re-fan-out and do not
+re-search.
+
+Build / refresh (after every Stage 5 and every watch run):
+
+```python
+python <skill_dir>/scripts/build_corpus.py --runs-root <workspace>/widehive --out <workspace>/widehive-corpus
+```
+
+Query rules for the main session:
+
+1. Answer strictly from `corpus.jsonl` / `corpus-index.json`; cite the run_id
+   and `fetched_at` of every figure.
+2. Stale beats invented: if the corpus answer is older than the user's
+   freshness need, say so and offer a targeted re-run of just the affected
+   objects (watch mode's diff does this automatically).
+3. If the corpus lacks the requested data, say what's missing and propose the
+   narrowest fan-out that would fill the gap.
+
+## Dashboard (interactive output)
+
+Optional Stage 5 add-on: turn `merged.json` into a self-contained interactive
+dashboard — search, sort, per-object drill-down with sources, numeric bar
+charts — no external dependencies, double-click to open:
+
+```python
+python <skill_dir>/scripts/build_dashboard.py --merged <run_dir>/merged.json --out <run_dir>/dashboard.html
+```
+
 ## Default field templates (override freely)
 
 - `financial`: name, ticker, revenue, net_profit, gross_margin, yoy, key_segments, risks, source_urls

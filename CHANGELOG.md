@@ -3,6 +3,18 @@
 All notable changes to this project are documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.0] - 2026-09-16
+
+### Added
+
+- **Corpus (knowledge base across runs)**: `scripts/build_corpus.py` consolidates
+  finished runs into `corpus.jsonl` + an index; query discipline added to the
+  spec (answer from the corpus first, cite run + fetch date, targeted re-runs
+  for gaps — never re-fan-out to answer an already-researched question).
+- **Interactive dashboard**: `scripts/build_dashboard.py` turns merged.json into
+  a self-contained HTML dashboard (search / sort / drill-down with sources /
+  numeric bar charts), no external dependencies.
+
 ## [1.1.0] - 2026-09-16
 
 ### Added
