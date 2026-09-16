@@ -1,0 +1,27 @@
+{
+  "target": "CrewAI",
+  "fields": {
+    "name": "CrewAI",
+    "owner": "crewAIInc",
+    "positioning": "快速灵活的开源 Python 多智能体自动化框架，用于构建生产级多智能体工作流",
+    "latest_version": "v1.15.17",
+    "stars": 58479,
+    "license": "MIT",
+    "url": "https://github.com/crewAIInc/crewAI"
+  },
+  "sources": [
+    {
+      "title": "crewAIInc/crewAI - GitHub",
+      "url": "https://github.com/crewAIInc/crewAI"
+    },
+    {
+      "title": "CrewAI Docs - Changelog",
+      "url": "https://docs.crewai.com/"
+    },
+    {
+      "title": "GitHub API crewAIInc/crewAI",
+      "url": "https://api.github.com/repos/crewAIInc/crewAI"
+    }
+  ],
+  "fetched_at": "2026-09-14"
+}

@@ -1,0 +1,87 @@
+{
+  "scenario": "tech",
+  "fields": [
+    "name",
+    "owner",
+    "positioning",
+    "latest_version",
+    "stars",
+    "license",
+    "url"
+  ],
+  "records": [
+    {
+      "target": "LangGraph",
+      "fields": {
+        "name": "LangGraph",
+        "owner": "langchain-ai",
+        "positioning": "为长期运行的有状态工作流与 Agent 提供低层支撑、持久化执行的框架（Build resilient agents）",
+        "latest_version": "0.4.4（langgraph-sdk，GitHub 最新 Release，2026-08-27）",
+        "stars": 41583,
+        "license": "MIT",
+        "url": "https://github.com/langchain-ai/langgraph"
+      },
+      "sources": [
+        {
+          "title": "langchain-ai/langgraph: Build resilient agents. - GitHub",
+          "url": "https://github.com/langchain-ai/langgraph"
+        },
+        {
+          "title": "GitHub API - langchain-ai/langgraph latest release",
+          "url": "https://api.github.com/repos/langchain-ai/langgraph/releases/latest"
+        }
+      ],
+      "fetched_at": "2026-09-14"
+    },
+    {
+      "target": "CrewAI",
+      "fields": {
+        "name": "CrewAI",
+        "owner": "crewAIInc",
+        "positioning": "快速灵活的开源 Python 多智能体自动化框架，用于构建生产级多智能体工作流",
+        "latest_version": "v1.15.17",
+        "stars": 58479,
+        "license": "MIT",
+        "url": "https://github.com/crewAIInc/crewAI"
+      },
+      "sources": [
+        {
+          "title": "crewAIInc/crewAI - GitHub",
+          "url": "https://github.com/crewAIInc/crewAI"
+        },
+        {
+          "title": "CrewAI Docs - Changelog",
+          "url": "https://docs.crewai.com/"
+        },
+        {
+          "title": "GitHub API crewAIInc/crewAI",
+          "url": "https://api.github.com/repos/crewAIInc/crewAI"
+        }
+      ],
+      "fetched_at": "2026-09-14"
+    },
+    {
+      "target": "AutoGen",
+      "fields": {
+        "name": "AutoGen",
+        "owner": "microsoft",
+        "positioning": "A programming framework for agentic AI（用于构建智能体 AI 应用的编程框架）",
+        "latest_version": "python-v0.7.5",
+        "stars": 60969,
+        "license": "CC-BY-4.0",
+        "url": "https://github.com/microsoft/autogen"
+      },
+      "sources": [
+        {
+          "title": "microsoft/autogen GitHub Repository (API)",
+          "url": "https://api.github.com/repos/microsoft/autogen"
+        },
+        {
+          "title": "microsoft/autogen Latest Release (API)",
+          "url": "https://api.github.com/repos/microsoft/autogen/releases/latest"
+        }
+      ],
+      "fetched_at": "2026-09-14"
+    }
+  ]
+}

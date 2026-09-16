@@ -1,0 +1,11 @@
+{
+  "run_id": "smoke-001",
+  "scenario": "tech",
+  "fields": ["name", "owner", "positioning", "latest_version", "stars", "license", "url"],
+  "batch_size": 3,
+  "max_output_words": 300,
+  "max_retries": 2,
+  "output_form": "对比数据表 + 简报",
+  "created_at": "2026-09-14",
+  "note": "冒烟测试：验证扇出/落盘/程序合并链路，3 个对象"
+}

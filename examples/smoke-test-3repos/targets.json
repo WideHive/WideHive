@@ -1,0 +1,5 @@
+[
+  {"slug": "langgraph", "name": "LangGraph", "repo": "langchain-ai/langgraph"},
+  {"slug": "crewai", "name": "CrewAI", "repo": "crewAIInc/crewAI"},
+  {"slug": "autogen", "name": "AutoGen", "repo": "microsoft/autogen"}
+]

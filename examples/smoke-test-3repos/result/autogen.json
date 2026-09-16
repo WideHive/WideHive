@@ -1,0 +1,23 @@
+{
+  "target": "AutoGen",
+  "fields": {
+    "name": "AutoGen",
+    "owner": "microsoft",
+    "positioning": "A programming framework for agentic AI（用于构建智能体 AI 应用的编程框架）",
+    "latest_version": "python-v0.7.5",
+    "stars": 60969,
+    "license": "CC-BY-4.0",
+    "url": "https://github.com/microsoft/autogen"
+  },
+  "sources": [
+    {
+      "title": "microsoft/autogen GitHub Repository (API)",
+      "url": "https://api.github.com/repos/microsoft/autogen"
+    },
+    {
+      "title": "microsoft/autogen Latest Release (API)",
+      "url": "https://api.github.com/repos/microsoft/autogen/releases/latest"
+    }
+  ],
+  "fetched_at": "2026-09-14"
+}
