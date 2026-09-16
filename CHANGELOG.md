@@ -3,6 +3,19 @@
 All notable changes to this project are documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.4.0] - 2026-09-16
+
+### Added
+
+- **Multimodal objects**: the fetch ladder extends to video (transcript-first),
+  audio, and images; unsupported modalities are disclosed via
+  `unsupported_modality`, never silently dropped.
+- **Tabular intake & write-back**: target lists from CSV/TSV/spreadsheets,
+  results appended back with `wh_*`-prefixed columns; composes with watch mode
+  for monitoring a living list.
+- **Harness adapters** (`adapters/`): per-harness mapping docs — OpenClaw
+  (canonical), Claude Code, Codex CLI — plus a capability matrix.
+
 ## [1.3.0] - 2026-09-16
 
 ### Added

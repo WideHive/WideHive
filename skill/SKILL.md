@@ -169,6 +169,23 @@ human-readable. The scheduled run flow, triggered by a cron job whose prompt is
 add jitter; respect robots and ToS. A watch that hammers its sources gets
 blocked — and burns trust for the skill, the user, and the wider ecosystem.
 
+## Multimodal objects
+
+An object is not always a web page. The fetch ladder extends to:
+
+- **PDF / documents** — native PDF tooling at the worker; extract per template.
+- **Video** — fetch the transcript first (platform ASR / transcript tools);
+  sample visual frames only when the template actually needs them. Record the
+  transcript source and timestamp coverage in the result.
+- **Audio** — same as video, minus frames.
+- **Images** — vision-capable analysis at the worker; store the image URL plus
+  the observed facts, never the image itself.
+
+Worker prompts stay narrow: tell the worker which modality the object is and
+which tool tier to try first, exactly as with fetching. If a modality cannot
+be processed on the current platform, write the object with
+`"error":"unsupported_modality"` instead of silently dropping it.
+
 ## Corpus (knowledge base across runs)
 
 Every finished run is knowledge. Before answering any question about
@@ -200,6 +217,19 @@ charts — no external dependencies, double-click to open:
 ```python
 python <skill_dir>/scripts/build_dashboard.py --merged <run_dir>/merged.json --out <run_dir>/dashboard.html
 ```
+
+## Tabular intake & write-back
+
+For non-technical initiators, targets and results can move through tables:
+
+- **Intake**: accept a target list as CSV/TSV (slug, name, url, …) or a
+  spreadsheet / bitable table; convert to `targets.json` at Stage 1 and show
+  the parsed list for confirmation as usual.
+- **Write-back**: after Stage 4, append `merged.csv` rows back to the intake
+  table as new columns prefixed `wh_` (or a companion sheet/table); never
+  overwrite user-owned columns.
+- **Schedules**: a cron prompt may point at a table whose rows changed since
+  the last run — combine with watch mode's diff to monitor a living list.
 
 ## Default field templates (override freely)
 
@@ -251,3 +281,5 @@ converged or every skip is disclosed.
   equivalent) with file read/write tools for workers.
 - Optional: enhanced web-open tools (e.g. AutoGLM open-link) meaningfully
   improve anti-crawl fetching; the platform's built-in fetch works as fallback.
+- Porting to another harness: see [`../adapters/README.md`](../adapters/README.md)
+  for per-harness mappings (OpenClaw, Claude Code, codex CLI).

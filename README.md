@@ -175,8 +175,9 @@ written by a model, from validated data.
 **Does it work outside AutoClaw?**
 Yes — AutoClaw is built on the OpenClaw agent runtime, and WideHive targets
 that runtime: any OpenClaw-based distribution works with
-`openclaw skills install widehive`. The orchestration discipline itself is
-harness-agnostic.
+`openclaw skills install widehive`. Porting guides for Claude Code and Codex
+CLI live in [`adapters/`](adapters/README.md); the orchestration discipline
+itself is harness-agnostic.
 
 ## Attribution
 
