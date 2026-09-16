@@ -1,6 +1,6 @@
 # WideHive
 
-*A hive of agents for wide questions. — 把一个问题，交给一整个蜂巢。*
+*A hive of agents for wide questions.*
 
 Wide Research orchestration for AutoClaw & OpenClaw agents — fan out 100+ context-isolated sub-agents
 over a large research target list, merge the results programmatically with zero
@@ -38,7 +38,7 @@ before stalling.
 
 **In AutoClaw (recommended):** WideHive lives in AutoClaw's skill market
 (ClawHub). Install it from the market — or simply ask your AutoClaw assistant
-to install `WideHive` — then trigger it in chat: *「用 WideHive 调研 …」*.
+to install `WideHive` — then trigger it in chat: *"use WideHive to survey …"*.
 
 **On any other OpenClaw agent:**
 
@@ -57,7 +57,7 @@ cp -r WideHive/skill <your-workspace>/skills/widehive
 Use WideHive to compare the latest annual reports of these 30 companies:
 <list>            # financial scenario → CSV/Excel table first
 
-用 WideHive 调研近三年国内 AR 眼镜厂商的主力产品   # topic mode →
+Use WideHive to survey the top AR-glasses makers in China (2023–2026)   # topic mode →
                                                       # enumerate first, you confirm, then fan out
 ```
 
