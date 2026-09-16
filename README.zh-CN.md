@@ -31,7 +31,7 @@ WideHive 用分而治之绕开这堵墙：
 openclaw skills install widehive
 
 # 或手动：把 skill 目录复制进你的 workspace skills/ 目录
-git clone https://github.com/<owner>/WideHive.git
+git clone https://github.com/WideHive/WideHive.git
 cp -r WideHive/skill <你的workspace>/skills/widehive
 ```
 

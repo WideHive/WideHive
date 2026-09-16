@@ -46,7 +46,7 @@ to install `WideHive` — then trigger it in chat: *「用 WideHive 调研 …�
 openclaw skills install widehive
 
 # Or manually: copy the skill folder into your workspace skills/ directory
-git clone https://github.com/<owner>/WideHive.git
+git clone https://github.com/WideHive/WideHive.git
 cp -r WideHive/skill <your-workspace>/skills/widehive
 ```
 
