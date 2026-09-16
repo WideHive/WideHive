@@ -3,6 +3,24 @@
 All notable changes to this project are documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.0] - 2026-09-16
+
+### Added
+
+- **Watch mode (scheduled monitoring)**: set `mode: "watch"` plus a `watch`
+  block in `plan.json`; new `scripts/diff_results.py` diffs a current run
+  against a baseline (zero LLM), and the orchestrator re-fans-out **only**
+  new/changed objects, carrying unchanged results forward. Idle scheduled runs
+  cost ≈ 0.
+- **Scenario packs** (`scenarios/`): prompt-only domain configurations. First
+  pack: `financial-filings` — prospectus/annual-report extraction with currency
+  discipline, IFRS-vs-adjusted separation, and a validated report layout
+  (survived a real 4-object run).
+- **Model tiering guidance**: strong model for enumerate/synthesize; default or
+  cheaper model for workers.
+- **Retry playbook**: ordered fallback ladder (retry → alternate source →
+  alternate fetch engine → field-level fallback → disclose skipped).
+
 ## [1.0.0] - 2026-09-16
 
 ### Added

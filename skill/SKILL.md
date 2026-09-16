@@ -45,7 +45,7 @@ covered only 12–20 before stalling).
 `widehive/<run_id>/` under the workspace (scratch/test runs may live in a
 tmp directory instead):
 
-- `plan.json` — scenario, field template, batch_size, max_output_words, max_retries, output_form
+- `plan.json` — scenario, field template, batch_size, max_output_words, max_retries, output_form; watch runs add `mode` and a `watch` block (see Watch mode)
 - `targets.json` — object list (`slug`, `name`, `url`/identifier, source hint)
 - `result/<slug>.json` — one file per object, written by the worker
 - `merged.csv` / `merged.json` — programmatic merge output
@@ -132,6 +132,43 @@ python <skill_dir>/scripts/merge_results.py --run-dir <run_dir>
 - Ship the raw `result/` directory alongside the report — per-object results
   are never truncated, always verifiable.
 
+## Watch mode (scheduled monitoring)
+
+A one-shot run answers a question once. Watch mode turns a target list into a
+**continuously monitored feed**: on a schedule, diff against the previous run,
+re-fan-out only what changed, and emit a change report.
+
+Enable it in `plan.json`:
+
+```json
+{
+  "mode": "watch",
+  "watch": {
+    "baseline_run": "widehive/<previous_run_id>",
+    "compare_fields": ["revenue", "gross_margin", "latest_version"],
+    "schedule": "0 9 * * 1"
+  }
+}
+```
+
+`schedule` is informational — the platform cron job owns timing; keep it
+human-readable. The scheduled run flow, triggered by a cron job whose prompt is
+"Run WideHive watch run <run_id>":
+
+1. Diff first, zero LLM and zero fan-out cost:
+   `python <skill_dir>/scripts/diff_results.py --baseline <prev_run_dir> --current <cur_run_dir>`
+2. **No new/changed objects** → carry results forward, emit a one-paragraph
+   no-change note. Total cost ≈ 0.
+3. **New/changed objects exist** → fan out workers only for those slugs
+   (narrow prompts as usual), copy unchanged `result/*.json` forward from the
+   baseline run so the merge covers the full list, then merge and produce a
+   **change report**: what changed, per field, with sources.
+4. Promote the current run to baseline (update the watch pointer / run list).
+
+**Politeness**: schedule no faster than the target sources actually update;
+add jitter; respect robots and ToS. A watch that hammers its sources gets
+blocked — and burns trust for the skill, the user, and the wider ecosystem.
+
 ## Default field templates (override freely)
 
 - `financial`: name, ticker, revenue, net_profit, gross_margin, yoy, key_segments, risks, source_urls
@@ -144,23 +181,37 @@ python <skill_dir>/scripts/merge_results.py --run-dir <run_dir>
   many concurrent sub-agents the platform tolerates, then go full width.
 - Workers run on the default model. Cost is controlled by narrow prompts +
   short outputs, not by a bigger budget.
+- **Model tiering**: enumeration and synthesis need the strong model; workers
+  only produce narrow, template-shaped output, so the platform default — or a
+  cheaper model where the harness supports per-worker overrides — is enough.
+  Never spend strong-model budget inside a worker.
 - The run directory is the single source of truth; any interruption resumes
   from `result/`.
 
-## Failure handling
+## Failure handling & retry playbook
 
-- Worker session failed / timed out → object stays in the retry queue
-  (max `max_retries` rounds), then disclose as skipped.
-- Fetch blocked / anti-crawl → retry once via an alternative fetch path; if
-  still failing, write `{"fields":{...},"error":"fetch_failed"}` so the merge
-  script accounts for it. Never silently drop an object.
-- Orchestrator fallback: if a retry worker also fails with an
-  infrastructure-type error (LLM request failure, gateway timeout) and only a
-  few deterministically fetchable fields are missing, the orchestrator may
-  fetch and patch the file directly, disclosing "patched by fallback" in the
-  report. If infrastructure failures arrive in batches, pause fan-out and
-  check the platform before continuing.
-- Stage 4 is done only when every object converged or every skip is disclosed.
+Work the fallback ladder in order; stop at the first success and record which
+rung was used:
+
+1. **Retry the worker unchanged** — transient infrastructure errors (LLM
+   request failure, gateway timeout) are the most common case. Max
+   `max_retries` rounds.
+2. **Alternate source type** — official PDF → authoritative media → secondary
+   source, disclosing the downgrade in the result.
+3. **Alternate fetch engine** — dedicated web-open tool → built-in fetch.
+4. **Field-level fallback** — if only a few deterministically fetchable fields
+   are missing (e.g. one API number), the orchestrator fetches and patches the
+   file directly, disclosing "patched by fallback" in the final report. If
+   infrastructure failures arrive in batches, pause fan-out and check the
+   platform before continuing.
+5. **Disclose** — objects that exhaust the ladder are marked skipped in the
+   final report. Never silently drop an object; a blocked fetch is written as
+   `{"fields":{...},"error":"fetch_failed"}` so the merge script accounts
+   for it.
+
+Track retry rounds in the run dir (`retry-queue.json`; optional but
+recommended for large fan-outs). Stage 4 is done only when every object
+converged or every skip is disclosed.
 
 ## Prerequisites
 

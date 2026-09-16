@@ -113,6 +113,18 @@ Stdout is a JSON verdict report:
 `NEEDS_RETRY` lists exactly which object is missing which field — feed that
 back to the retry queue. Pure standard library, Python 3.8+, no dependencies.
 
+## Watch mode (scheduled monitoring)
+
+Set `"mode": "watch"` and a `watch` block in `plan.json`, schedule the run with
+your platform's cron, and WideHive turns a one-shot survey into a monitored
+feed: each trigger diffs the target list against the previous run (pure code,
+zero cost), re-runs **only the changed objects**, and emits a change report
+with per-field diffs and sources. Idle runs cost nothing.
+
+First scenario pack: [`scenarios/financial-filings.md`](scenarios/financial-filings.md)
+— prospectus/annual-report extraction with currency discipline and
+IFRS-vs-adjusted separation.
+
 ## A real run (archived in `examples/smoke-test-3repos/`)
 
 Three GitHub repositories, one worker each, on a stock AutoClaw / OpenClaw agent:
