@@ -9,6 +9,7 @@ LLM calls, and synthesize a scenario-shaped report.
 <p align="center">
   <img src="assets/architecture.svg" alt="Wide Research five-stage pipeline" width="100%">
 </p>
+🌐 **Project site**: <https://widehive.github.io> — install guide, architecture, scenario packs and links.
 
 ## Why
 
