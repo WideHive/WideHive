@@ -1,0 +1,75 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="WideHive logo">
+  <defs>
+    <radialGradient id="bg" cx="42%" cy="38%" r="80%">
+      <stop offset="0%" stop-color="#0d1a2b"/>
+      <stop offset="55%" stop-color="#0a1420"/>
+      <stop offset="100%" stop-color="#060b12"/>
+    </radialGradient>
+    <linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#818cf8"/>
+    </linearGradient>
+    <linearGradient id="core" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow2" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!-- faint particle network -->
+  <g stroke="#22d3ee" stroke-width="1" opacity="0.10">
+    <line x1="60" y1="70" x2="150" y2="40"/><line x1="150" y1="40" x2="240" y2="66"/>
+    <line x1="420" y1="480" x2="330" y2="452"/><line x1="330" y1="452" x2="440" y2="430"/>
+    <line x1="52" y1="420" x2="120" y2="470"/><line x1="452" y1="66" x2="410" y2="30"/>
+  </g>
+  <g fill="#67e8f9" opacity="0.30">
+    <circle cx="150" cy="40" r="3"/><circle cx="60" cy="70" r="2.5"/><circle cx="330" cy="452" r="3"/>
+    <circle cx="440" cy="430" r="2.5"/><circle cx="52" cy="420" r="2.5"/><circle cx="452" cy="66" r="2.5"/>
+    <circle cx="478" cy="120" r="2"/><circle cx="30" cy="150" r="2"/>
+  </g>
+
+  <!-- big hive hexagon (neon) -->
+  <polygon points="368.6,321 256,386 143.4,321 143.4,191 256,126 368.6,191"
+           fill="#0e7490" fill-opacity="0.24" stroke="url(#ng)" stroke-width="10" stroke-linejoin="round" filter="url(#glow)"/>
+  <polygon points="306.2,285 256,314 205.8,285 205.8,227 256,198 306.2,227"
+           fill="url(#core)" filter="url(#glow2)"/>
+
+  <!-- fan connections -->
+  <g stroke="url(#ng)" stroke-width="4" opacity="0.5" filter="url(#glow2)">
+    <line x1="368.6" y1="321" x2="425" y2="312"/>
+    <line x1="256" y1="386" x2="256" y2="409"/>
+    <line x1="143.4" y1="321" x2="87" y2="332"/>
+    <line x1="143.4" y1="191" x2="87" y2="138"/>
+    <line x1="256" y1="126" x2="256" y2="103"/>
+    <line x1="368.6" y1="191" x2="425" y2="117"/>
+  </g>
+
+  <!-- orbit hexes (workers, neon) -->
+  <polygon points="461,374 425,396 389,374 389,332 425,312 461,332"
+           fill="#22d3ee" fill-opacity="0.60" stroke="url(#ng)" stroke-width="7" stroke-linejoin="round" filter="url(#glow2)"/>
+  <polygon points="292,472 256,493 220,472 220,430 256,409 292,430"
+           fill="#818cf8" fill-opacity="0.55" stroke="url(#ng)" stroke-width="7" stroke-linejoin="round" filter="url(#glow2)"/>
+  <polygon points="123,374 87,396 51,374 51,332 87,311 123,332"
+           fill="#22d3ee" fill-opacity="0.60" stroke="url(#ng)" stroke-width="7" stroke-linejoin="round" filter="url(#glow2)"/>
+  <polygon points="123,180 87,201 51,180 51,138 87,117 123,138"
+           fill="#818cf8" fill-opacity="0.55" stroke="url(#ng)" stroke-width="7" stroke-linejoin="round" filter="url(#glow2)"/>
+  <polygon points="292,82 256,103 220,82 220,40 256,19 292,40"
+           fill="#22d3ee" fill-opacity="0.60" stroke="url(#ng)" stroke-width="7" stroke-linejoin="round" filter="url(#glow2)"/>
+  <polygon points="461,180 425,201 389,180 389,138 425,117 461,138"
+           fill="#818cf8" fill-opacity="0.55" stroke="url(#ng)" stroke-width="7" stroke-linejoin="round" filter="url(#glow2)"/>
+
+  <!-- worker dots -->
+  <g fill="#a5f3ff" filter="url(#glow2)">
+    <circle cx="418" cy="256" r="8"/><circle cx="337" cy="396" r="8"/><circle cx="175" cy="396" r="8"/>
+    <circle cx="94" cy="256" r="8"/><circle cx="175" cy="116" r="8"/><circle cx="337" cy="116" r="8"/>
+  </g>
+</svg>
