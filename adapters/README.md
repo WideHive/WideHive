@@ -9,6 +9,7 @@ Document how the WideHive five-stage spec maps onto different agent harnesses, s
 - [`openclaw.md`](openclaw.md) — AutoClaw / OpenClaw (canonical, validated environment)
 - [`claude-code.md`](claude-code.md) — Claude Code
 - [`codex-cli.md`](codex-cli.md) — OpenAI Codex CLI
+- [`trae.md`](trae.md) — Trae (字节 AI IDE)
 
 Capability matrix:
 
