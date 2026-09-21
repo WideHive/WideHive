@@ -39,3 +39,14 @@ WorkBuddy 内置 **CodeBuddy Code CLI**（Claude Code 同款形态），自带�
 
 - 调度：无 cron — 手动触发
 - 多 Agent 并行：WorkBuddy 宣传支持多 Agents 并行，WideHive 场景下的并行度待 GUI 实测确认
+
+## GUI 实测记录（2026-09-21）
+
+| 测试 | 结果 |
+|---|---|
+| 基础三能力（读文件/联网/写盘） | ✅ 全通过 |
+| MCP 工具可见性（GUI） | ❌ GUI Agent 不可见 CLI 注册的 MCP（CLI 侧 Connected）——排查方向：重启 WorkBuddy / GUI 设置内 MCP 开关 / 版本支持 |
+| 编排实战（3 仓库调研） | ✅ **原生跑通**：逐仓库落盘 JSON + 主动产出对比汇总，全部数据来自 GitHub REST API 一手来源 |
+| 数据质量交叉验证 | ✅ 与 09-16 基线对比，star 变化量在合理区间，零编造痕迹 |
+
+**适配结论：A- 档（双轨形态）**——GUI 侧核心流程原生可用（无需 MCP 即可跑通 WideHive 流程），CLI 侧 MCP 工具已注册可用。MCP 在 GUI 不可见的排查：① 重启 WorkBuddy；② GUI 设置内查找 MCP 开关；③ 若确认 GUI 不支持挂载，接受双轨形态（GUI 走 prompt 流程，CLI/脚本侧走 MCP 工具校验）。
