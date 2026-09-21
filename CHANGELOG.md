@@ -16,6 +16,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Harness adapters** (`adapters/`): per-harness mapping docs — OpenClaw
   (canonical), Claude Code, Codex CLI — plus a capability matrix.
 
+## [1.5.0] - 2026-09-21
+
+### Added
+
+- **widehive-mcp server**（mcp/server.py）：四个零 LLM 工具（merge/diff/corpus/dashboard）封装为 MCP tools，编排规范与场景包作为 resources/prompts；兼容 mcp 1.x/2.x。
+- **Trae 适配**（dapters/trae.md）：自定义智能体配置指南 + 精简编排规范提示词。
+
 ## [1.3.0] - 2026-09-16
 
 ### Added

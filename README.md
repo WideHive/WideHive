@@ -134,7 +134,11 @@ and fetch date — no re-fanning. And any `merged.json` can be turned into a
 **self-contained interactive dashboard** (`build_dashboard.py`) with search,
 sort, drill-down and charts.
 
-## A real run (archived in `examples/smoke-test-3repos/`)
+## MCP server
+
+WideHive ships an MCP server (mcp/server.py) that exposes the pipeline as tools — merge/diff/corpus/dashboard — for any MCP-compatible platform (Trae, Claude Code, Cursor, Dify, …). Setup and config snippets: [mcp/README.md](mcp/README.md).
+
+## A real run (archived in examples/smoke-test-3repos/)
 
 Three GitHub repositories, one worker each, on a stock AutoClaw / OpenClaw agent:
 

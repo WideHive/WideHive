@@ -83,7 +83,11 @@ python skill/scripts/merge_results.py --run-dir WideHive/<run_id>
 
 stdout 输出 JSON 校验报告：`total_targets` / `ok` / `defects` / `missing_files` / `verdict`（`PASS` 或 `NEEDS_RETRY`，缺陷精确到"哪个对象缺哪个字段"）。纯 Python 标准库，3.8+，无第三方依赖。
 
-## 真实运行存档（见 `examples/smoke-test-3repos/`）
+## MCP server
+
+WideHive 内置 MCP server（mcp/server.py），把整条流水线暴露为工具——merge/diff/corpus/dashboard——任何支持 MCP 的平台（Trae、Claude Code、Cursor、Dify……）都能调用。配置片段见 [mcp/README.md](mcp/README.md)。
+
+## 真实运行存档（见 examples/smoke-test-3repos/)
 
 三个 GitHub 仓库、每个一个 worker，跑在原版 AutoClaw / OpenClaw 智能体上：
 
