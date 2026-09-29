@@ -12,6 +12,7 @@ Tools:
 Resources:
   widehive://spec/SKILL.md                        the five-stage orchestration spec
   widehive://spec/scenarios/financial-filings.md  financial-filings scenario pack
+  widehive://spec/scenarios/tech-selection.md     tech-selection scenario pack
 Prompts:
   widehive_orchestration()  full orchestration spec text (for platforms without resource support)
 
@@ -104,6 +105,12 @@ def spec() -> str:
 def scenario_financial() -> str:
     """The financial-filings scenario pack (fields, worker prompt variant, report layout, pitfalls)."""
     return (REPO_ROOT / "scenarios" / "financial-filings.md").read_text(encoding="utf-8")
+
+
+@mcp.resource("widehive://spec/scenarios/tech-selection.md")
+def scenario_tech() -> str:
+    """The tech-selection scenario pack (fields, maintenance_status enum, source ladder, license-risk pitfalls)."""
+    return (REPO_ROOT / "scenarios" / "tech-selection.md").read_text(encoding="utf-8")
 
 
 @mcp.prompt()

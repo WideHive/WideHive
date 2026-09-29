@@ -7,6 +7,7 @@ Scenario packs are prompt-only domain configurations that make WideHive immediat
 ## Contents
 
 - [`financial-filings.md`](financial-filings.md) — prospectus / annual-report extraction and company comparison (validated by a real 2-company × 4-document run, archived under `examples/`)
+- [`tech-selection.md`](tech-selection.md) — repo / library / dev-tool selection matrix with license-risk surfacing and watch config (smoke-validated at 3 repos, `examples/smoke-test-3repos/`)
 
 ## Usage
 

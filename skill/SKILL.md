@@ -45,7 +45,7 @@ covered only 12–20 before stalling).
 `widehive/<run_id>/` under the workspace (scratch/test runs may live in a
 tmp directory instead):
 
-- `plan.json` — scenario, field template, batch_size, max_output_words, max_retries, output_form; watch runs add `mode` and a `watch` block (see Watch mode)
+- `plan.json` — scenario, field template, batch_size, max_output_words, max_retries, output_form; model tiers (`models.worker` / `models.escalate_to`, see Stage 3); watch runs add `mode` and a `watch` block (see Watch mode)
 - `targets.json` — object list (`slug`, `name`, `url`/identifier, source hint)
 - `result/<slug>.json` — one file per object, written by the worker
 - `merged.csv` / `merged.json` — programmatic merge output
@@ -59,7 +59,10 @@ tmp directory instead):
   task; ask one question if unsure).
 - Write `plan.json`: scenario, `fields` (default per scenario, see below),
   `batch_size` (default 10), `max_output_words` (default 400), `max_retries`
-  (default 2), `output_form`.
+  (default 2), `output_form`, and `models` —
+  `{"worker": "<mid-tier>", "escalate_to": "<flagship>"}`. Workers do narrow,
+  template-shaped extraction, so a mid-tier model is the default; the
+  flagship tier is reserved for escalated hard objects (see Stage 3).
 - Show the user a short task brief (object count, what gets extracted per
   object, rough cost scale) before fanning out. Converge before you spend.
 
@@ -77,6 +80,47 @@ tmp directory instead):
   spawning (AutoClaw / OpenClaw: `sessions_spawn`, isolated one-shot). Label:
   `WideHive·<scenario>·<NN>`. Waiting is push-based — end the turn and
   handle completion events; report progress briefly between waves.
+- **Model tiering (default policy).** Workers run on `plan.json`
+  `models.worker` (mid-tier); escalated objects run on `models.escalate_to`
+  (flagship). Escalate an object when: (a) the merge verdict flags it
+  `"escalate": true` (capability-limit defects: invalid JSON, overlong
+  output), (b) it has failed `max_retries` rounds at the mid tier, or (c)
+  the plan pre-flags it as hard (unstructured / abstract sources). Never
+  escalate for missing data or blocked sources — a stronger model cannot
+  unblock a fetch; use the fallback ladder instead. On platforms without
+  per-worker model override, run the worker sessions on the mid tier
+  selected in the platform UI.
+- **Headless CLI fan-out.** On harnesses with a CLI agent but no sub-agent
+  spawning (WorkBuddy/CodeBuddy, Claude Code, Codex CLI), drive Stage 3 with
+  the parallel driver instead of serial in-session processing:
+
+  ```
+  python <skill_dir>/scripts/fanout_cli.py --run-dir <run_dir> \
+      --concurrency 4 --dry-run     # inspect the plan first
+  python <skill_dir>/scripts/fanout_cli.py --run-dir <run_dir> --concurrency 4
+  ```
+
+  It spawns one isolated CLI worker per object with concurrency control,
+  checkpoint resume, per-worker model override, and a stdout-JSON capture
+  fallback for workers that cannot write files. Every outcome is appended to
+  `<run_dir>/fanout_log.jsonl` — use it as the timing/cost baseline.
+- **Direct-API thin workers (no platform needed).** When the target list
+  carries direct URLs (benchmark scans, monitoring lists, batch tables) or no
+  agent platform is available at all, drive Stage 3 with the thin worker:
+
+  ```
+  python <skill_dir>/scripts/fanout_api.py --run-dir <run_dir> \
+      --api-base <openai-compatible-endpoint> --api-key <key> --dry-run
+  ```
+
+  The script fetches pages itself (HTML-first ladder; optional Tavily/Bocha
+  search for objects without URLs), calls any OpenAI-compatible API for
+  extraction only, and builds `sources` from its own fetch records —
+  provenance by construction. Same checkpoint/hints/escalate/log contract as
+  the CLI driver. Executor tiering composes with model tiering: thin workers
+  are the default; objects that come back `fetch_failed` (rendered pages,
+  anti-crawl, PDF/video) route to the agent-worker ladder via the retry
+  playbook, then escalate the model last.
 - Failed objects (no result file / missing fields / overlong / session failure)
   go to the retry queue, at most `max_retries` rounds; still-failing objects
   are disclosed as skipped in the final report.
@@ -114,7 +158,10 @@ python <skill_dir>/scripts/merge_results.py --run-dir <run_dir>
 
 - Aggregates `result/*.json` → `merged.csv` + `merged.json`; validates required
   fields, URL format, and field length; prints a JSON verdict report
-  (`total_targets` / `ok` / `defects` / `missing_files` / `verdict`).
+  (`total_targets` / `ok` / `defects` / `missing_files` / `retry_queue` /
+  `verdict`). Each defect entry carries a prescription — `retry_hint`
+  (one-line fix instruction), `escalate` (capability-limit defect → retry on
+  `models.escalate_to`), `patchable` (only missing fields → patch directly).
 - `verdict: NEEDS_RETRY` → queue defective objects back to Stage 3.
 - The script's report is the single source of truth for fan-out quality —
   never eyeball-approve a result that the script flagged.
@@ -241,30 +288,38 @@ For non-technical initiators, targets and results can move through tables:
 
 - Start at `batch_size=10`; for 100+ objects ramp 5→10→15 first to probe how
   many concurrent sub-agents the platform tolerates, then go full width.
-- Workers run on the default model. Cost is controlled by narrow prompts +
-  short outputs, not by a bigger budget.
-- **Model tiering**: enumeration and synthesis need the strong model; workers
-  only produce narrow, template-shaped output, so the platform default — or a
-  cheaper model where the harness supports per-worker overrides — is enough.
-  Never spend strong-model budget inside a worker.
+- **Model tiering is the default, not an option.** Enumeration and synthesis
+  need the strong model; workers produce narrow, template-shaped output and
+  run `models.worker` (mid-tier). Only escalated objects spend flagship
+  budget, and only after a mid-tier attempt failed them. Never spend
+  strong-model budget inside a worker that has not failed at least once.
+- Cost is controlled by model tiering + narrow prompts + short outputs, not
+  by a bigger budget.
 - The run directory is the single source of truth; any interruption resumes
   from `result/`.
 
 ## Failure handling & retry playbook
 
-Work the fallback ladder in order; stop at the first success and record which
-rung was used:
+The merge verdict prescribes the fix per object via `retry_queue`
+(`patch_first` / `retry` / `escalate`). Work the ladder in order per object;
+stop at the first success and record which rung was used:
 
-1. **Retry the worker unchanged** — transient infrastructure errors (LLM
-   request failure, gateway timeout) are the most common case. Max
-   `max_retries` rounds.
-2. **Alternate source type** — official PDF → authoritative media → secondary
-   source, disclosing the downgrade in the result.
-3. **Alternate fetch engine** — dedicated web-open tool → built-in fetch.
-4. **Field-level fallback** — if only a few deterministically fetchable fields
-   are missing (e.g. one API number), the orchestrator fetches and patches the
-   file directly, disclosing "patched by fallback" in the final report. If
-   infrastructure failures arrive in batches, pause fan-out and check the
+1. **Patch first (`patch_first`)** — only deterministic fields are missing (a
+   number, a URL, a date): the orchestrator fetches and patches
+   `result/<slug>.json` directly, disclosing "patched by fallback" in the
+   final report. One targeted fetch beats one worker round-trip.
+2. **Targeted re-dispatch (`retry`)** — re-run the worker with the
+   `retry_hint` injected: fix ONLY this defect, keep the rest of the existing
+   file. Transient infrastructure errors (LLM request failure, gateway
+   timeout) clear here. Max `max_retries` rounds.
+3. **Escalated re-dispatch (`escalate`)** — same targeted prompt on
+   `models.escalate_to`. Capability limits (invalid JSON, overlong output)
+   are what a stronger model actually fixes; escalate nothing else.
+4. **Alternate source type / fetch engine** — official PDF → authoritative
+   media → secondary source, disclosing the downgrade; dedicated web-open
+   tool → built-in fetch. Take this rung BEFORE escalating when the hint is
+   source-blocked (`worker_error`): a bigger model cannot unblock a fetch.
+   If infrastructure failures arrive in batches, pause fan-out and check the
    platform before continuing.
 5. **Disclose** — objects that exhaust the ladder are marked skipped in the
    final report. Never silently drop an object; a blocked fetch is written as
@@ -274,6 +329,16 @@ rung was used:
 Track retry rounds in the run dir (`retry-queue.json`; optional but
 recommended for large fan-outs). Stage 4 is done only when every object
 converged or every skip is disclosed.
+
+With `fanout_cli.py`, feed the verdict back as the retry input — the driver
+injects each `retry_hint` into the worker prompt and routes escalated slugs
+to the escalate_to model automatically:
+
+```
+python <skill_dir>/scripts/merge_results.py --run-dir <run_dir> > <run_dir>/verdict.json
+python <skill_dir>/scripts/fanout_cli.py --run-dir <run_dir> \
+    --hints <run_dir>/verdict.json --slugs <retry_queue slugs> --force
+```
 
 ## Prerequisites
 

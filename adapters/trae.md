@@ -69,7 +69,21 @@ academic: title, authors, year, venue, research_question, method, findings, limi
 【降级说明】
 Trae 无独立子 Agent 派发：对象按串行处理（每次一个，上下文隔离靠分段任务），
 结果质量一致、吞吐较低；对象数 >20 时建议分批处理并在批次间输出进度。
+
+【模型分层】
+worker 对话/任务一律用中档模型（Trae 模型选择器选 flash/air 档），
+主控规划与最终成稿用旗舰档；仅当中档重试后仍产出坏 JSON / 超长字段
+（merge 判定 escalate）才对个别对象换旗舰档重做。缺数据或来源被挡
+不用升档，换来源类型或抓取引擎重试。
 ```
+
+## 模型分层与吞吐（2026-09-29）
+
+- Trae 无无头 CLI，`scripts/fanout_cli.py` 不适用；并行上限 = 手动多开会话。
+- 成本优化主力是模型分层：worker 对话选中档模型（单对象窄任务足够），
+  可省扇出阶段大部分费用；旗舰档留给规划、枚举、成稿与升级重试。
+- 重试按 `merge_results` 判定报告的处方执行（patch_first 直接补抓、
+  retry 带提示重做、escalate 升档重做），不整轮重跑。
 
 ## 限制与降级
 

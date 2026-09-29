@@ -4,7 +4,7 @@ WorkBuddy 内置 **CodeBuddy Code CLI**（Claude Code 同款形态），自带�
 
 | Spec concept | WorkBuddy mapping |
 |---|---|
-| Stage 3 worker | CodeBuddy Agent 逐对象处理（串行），或对话分批 |
+| Stage 3 worker | **首选：`scripts/fanout_cli.py` 并行驱动 CodeBuddy 无头 CLI**（见下）；备选：CodeBuddy Agent 逐对象处理（串行），或对话分批 |
 | 文件读写 | 桌面文件系统原生访问（D:\ 等任意路径） |
 | MCP 工具 | `codebuddy mcp add` 注册 widehive server（已实测 Connected + 端到端核验） |
 | 编排规范 | 自定义智能体提示词（见 Trae 适配的精简规范，通用） |
@@ -29,6 +29,41 @@ WorkBuddy 内置 **CodeBuddy Code CLI**（Claude Code 同款形态），自带�
 
 3. WorkBuddy GUI 的对话/智能体同样可调用（共享 CodeBuddy 账号与 MCP 配置；以 GUI 内实测为准）。
 
+## 并行扇出 + 模型分层（fanout_cli.py，2026-09-29 旗标级验证）
+
+CodeBuddy 无头 CLI（`codebuddy-headless.js`，本机版本 2.147.0）支持 `-p` 无头
+模式与 `--model` 按 worker 指定模型，使 WideHive 的 P0 双优化（真并行 +
+worker 模型降档）可以在 WorkBuddy 上完整落地：
+
+- CLI 路径：`<WorkBuddy>\resources\app.asar.unpacked\cli\dist\codebuddy-headless.js`
+  （经 `node` 调用；`fanout_cli.py --cli auto` 会自动探测到它）
+- 已验证旗标：`-p`（无头输出）、`--model`（支持档位含 `glm-5.3-flash` /
+  `deepseek-v4.1-flash` 等中低档，`glm-5.3` / `deepseek-v4-pro` 等旗舰档）、
+  `--permission-mode acceptEdits`（自动接受文件写入）、`--tools`
+- ⚠️ 无头模式需要 CLI 侧登录：新 shell 里曾出现 `Authentication required`。
+  先跑一次 `node <codebuddy-headless.js>` 进入交互会话 `/login`，或从已登录
+  的 GUI 环境启动；登录一次后无头调用复用凭据。
+
+`plan.json` 模型分层示例（中档跑 worker、难点对象升级旗舰）：
+
+```json
+{"models": {"worker": "glm-5.3-flash", "escalate_to": "glm-5.3"}}
+```
+
+全量扇出（先 dry-run 检查派发计划）：
+
+```powershell
+python <skill_dir>\scripts\fanout_cli.py --run-dir <run_dir> --concurrency 4 --dry-run
+python <skill_dir>\scripts\fanout_cli.py --run-dir <run_dir> --concurrency 4
+```
+
+带处方重试（只重跑缺陷对象，自动注入 retry_hint 并升级 escalate 对象）：
+
+```powershell
+python <skill_dir>\scripts\merge_results.py --run-dir <run_dir> > <run_dir>\verdict.json
+python <skill_dir>\scripts\fanout_cli.py --run-dir <run_dir> --hints <run_dir>\verdict.json --slugs <retry_queue 各组 slug> --force
+```
+
 ## 实测记录（2026-09-21）
 
 - MCP 注册：✅ Connected（健康检查自动通过）
@@ -38,7 +73,7 @@ WorkBuddy 内置 **CodeBuddy Code CLI**（Claude Code 同款形态），自带�
 ## 限制
 
 - 调度：无 cron — 手动触发
-- 多 Agent 并行：WorkBuddy 宣传支持多 Agents 并行，WideHive 场景下的并行度待 GUI 实测确认
+- 多 Agent 并行：GUI 侧仍为串行；CLI 侧用 `fanout_cli.py` 获得 4–8 并发（2026-09-29 旗标级验证，端到端扇出待登录后首跑确认）
 
 ## GUI 实测记录（2026-09-21）
 

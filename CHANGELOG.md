@@ -3,6 +3,48 @@
 All notable changes to this project are documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.0] - 2026-09-29
+
+### Added
+
+- **Thin API worker 驱动器**（`skill/scripts/fanout_api.py`）：无需任何 agent
+  平台——脚本自抓页面（HTML 优先阶梯，可选 Tavily/Bocha 搜索）→ 调任意
+  OpenAI 兼容 API 纯抽取 → 脚本侧构建 sources（来源可信度由构造保证）。与
+  fanout_cli.py 同一套断点/处方/升级/日志契约；所有失败路径落盘为披露记录。
+  执行器分层成立：thin 为默认，fetch_failed/invalid_output 对象按处方路由
+  到 agent worker 阶梯；merge_results.py 将 `worker_error: invalid_output`
+  判定为能力缺陷（escalate）。
+- **100 仓库 benchmark 预注册方案**（`benchmarks/100repos/PLAN.md`）：清单选型
+  规则（10 类目 × GitHub Search top-10，可复现）、双基线对照组设计（旗舰/flash
+  单上下文，分离编排效应与模型效应）、同日地面真值程序化评分（coverage /
+  accuracy / fabrication 分计）、token 账本与预注册通过线。
+- **并行 CLI 扇出驱动器**（`skill/scripts/fanout_cli.py`）：为无子代理派发能力的
+  无头 CLI 平台（WorkBuddy/CodeBuddy、Claude Code、Codex CLI）提供进程级并行
+  扇出——单对象单 worker、并发上限、断点续跑（`result/` checkpoint）、
+  stdout-JSON 兜底落盘（`patched_by: stdout_capture`）、逐 worker 结果日志
+  `fanout_log.jsonl`（可作耗时/成本基线）。Windows 路径与命令行解析兼容。
+- **模型分层落地**：`plan.json` 新增 `models: {"worker": 中档, "escalate_to":
+  旗舰}`——worker 默认中档，旗舰档只留给升级对象（合并判定 escalate、
+  中档跑满重试轮次、或计划预标难点的对象）。
+
+### Changed
+
+- **重试带处方**（`skill/scripts/merge_results.py`）：判定报告新增
+  `retry_hint` / `escalate` / `patchable` 逐对象字段与 `retry_queue`
+  （`patch_first` / `retry` / `escalate`）分组；重试从"整轮重跑"改为按处方
+  定向修复——确定性缺字段直接补抓（patch_first），能力型缺陷（坏 JSON、
+  超长）才升档重试，来源被挡走降级阶梯不升档。
+- **SKILL.md**：Stage 3 写入模型分层默认策略与 fanout_cli 用法；重试阶梯
+  按处方重排（patch_first 提前）；成本纪律改为"模型分层是默认而非可选项"。
+- **Tech-selection 场景包**（`scenarios/tech-selection.md`）：仓库/库/开发工具
+  选型矩阵——核心字段 + `maintenance_status` 枚举 + HTML 优先的来源阶梯（规避
+  GitHub API 每 IP 共享限流坑）+ 许可证风险显式化 + watch 配置示例；冒烟级验证
+  （`examples/smoke-test-3repos/`，3 仓库端到端 PASS）。已注册为 MCP resource。
+- **adapters**：workbuddy.md 新增 fanout_cli 并行扇出 + 模型分层章节
+  （CodeBuddy headless v2.147.0 旗标级验证，含登录注意事项）；trae.md 新增
+  模型分层与吞吐说明；adapters/README.md 能力矩阵补 WorkBuddy 列与
+  并行/分层两行。
+
 ## [1.4.0] - 2026-09-16
 
 ### Added
