@@ -3,6 +3,21 @@
 All notable changes to this project are documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+
+## [1.6.1] - 2026-10-05
+
+### Security
+
+- **Slug path-traversal guard** (merge_results.py): slugs are validated against
+  a strict charset (letters / digits / dash / underscore / CJK; no dots,
+  slashes, control chars) and the resolved result path is verified to stay
+  inside `<run_dir>/result/` before any file access. Malicious
+  targets.json input can no longer escape the run directory.
+- **CSV formula-injection guard** (merge_results.py): cells written to
+  merged.csv are neutralized per OWASP guidance (leading `'` for values
+  starting with `=`, `+`, `-`, `@`, TAB, CR) so spreadsheets cannot execute
+  formulas from untrusted extracted content.
+- Regression-tested: clean run, traversal slug, formula payload, CJK slug.
 ## [1.6.0] - 2026-09-29
 
 ### Added

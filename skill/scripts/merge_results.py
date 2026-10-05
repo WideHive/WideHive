@@ -45,6 +45,23 @@ from pathlib import Path
 
 URL_RE = re.compile(r"^https?://\S+$", re.I)
 
+# Safe slug: letters/digits/dash/underscore/CJK only. Blocks path traversal
+# ("..", "/", "\\"), leading dots and control chars so that
+# f"result/{slug}.json" can never escape the run directory.
+SLUG_RE = re.compile(r"^[\w\-\u4e00-\u9fff]+$", re.UNICODE)
+
+# CSV formula-injection guard: Excel/LibreOffice interpret cells starting
+# with these characters as formulas when a CSV is opened directly.
+_FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
+
+
+def sanitize_csv_cell(v):
+    """Neutralize CSV formula injection per OWASP guidance: prefix a
+    single quote to any cell that could be parsed as a formula."""
+    if isinstance(v, str) and v.startswith(_FORMULA_PREFIXES):
+        return "'" + v
+    return v
+
 
 def prescribe(slug, issues, missing_file, max_len):
     """Return (retry_hint, escalate, patchable) for one object's defect list."""
@@ -128,7 +145,22 @@ def main():
                                           "before any retry", "escalate": False,
                             "patchable": False})
             continue
-        f = result_dir / f"{slug}.json"
+        if not SLUG_RE.match(slug):
+            defects.append({"slug": slug,
+                            "issues": ["unsafe_slug: allowed chars are letters, "
+                                       "digits, dash, underscore, CJK; no dots, "
+                                       "slashes or leading dots"],
+                            "retry_hint": "fix the slug in targets.json to a "
+                                          "filesystem-safe identifier",
+                            "escalate": False, "patchable": False})
+            continue
+        f = (result_dir / f"{slug}.json").resolve()
+        if f.parent != result_dir.resolve():
+            defects.append({"slug": slug, "issues": ["path_escape_blocked"],
+                            "retry_hint": "slug resolved outside result/ - fix "
+                                          "targets.json", "escalate": False,
+                            "patchable": False})
+            continue
         if not f.exists():
             missing.append(slug)
             hint, esc, patch = prescribe(slug, [], True, args.max_field_len)
@@ -171,9 +203,9 @@ def main():
         for k in fields:
             v = fd.get(k)
             if isinstance(v, (list, dict)):
-                row[k] = json.dumps(v, ensure_ascii=False)
+                row[k] = sanitize_csv_cell(json.dumps(v, ensure_ascii=False))
             else:
-                row[k] = "" if v is None else v
+                row[k] = sanitize_csv_cell("" if v is None else v)
         row["n_sources"] = len(data.get("sources") or [])
         rows.append(row)
         records.append(data)
